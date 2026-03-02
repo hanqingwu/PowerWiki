@@ -649,10 +649,10 @@ function createApiRoutes(options) {
     }
 
     try {
-      const https = require('https');
-      const url = `https://ip-api.com/json/${ip}?fields=status,message,country,regionName,city&lang=zh-CN`;
+      const http = require('http');
+      const url = `http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city&lang=zh-CN`;
       
-      https.get(url, (response) => {
+      http.get(url, (response) => {
         let data = '';
         response.on('data', (chunk) => data += chunk);
         response.on('end', () => {
