@@ -641,7 +641,7 @@ function createApiRoutes(options) {
     }
   });
 
-  // API: 查询 IP 归属地
+  // API: 查询 IP 归属地（使用离线 IP 库）
   router.get('/ip/location', async (req, res) => {
     const { ip } = req.query;
     if (!ip) {
@@ -649,29 +649,17 @@ function createApiRoutes(options) {
     }
 
     try {
-      const http = require('http');
-      const url = `http://ipwho.is/${ip}`;
+      const IP2Region = require('ip2region').default;
+      const query = new IP2Region();
+      const result = query.search(ip);
       
-      http.get(url, (response) => {
-        let data = '';
-        response.on('data', (chunk) => data += chunk);
-        response.on('end', () => {
-          try {
-            const result = JSON.parse(data);
-            if (result.success && result.country) {
-              const parts = [result.country, result.region, result.city].filter(Boolean);
-              const location = parts.join(' ');
-              res.json({ success: true, ip, location });
-            } else {
-              res.json({ success: false, ip, location: '未知' });
-            }
-          } catch (e) {
-            res.json({ success: false, ip, location: '未知' });
-          }
-        });
-      }).on('error', () => {
+      if (result && result.country) {
+        const parts = [result.country, result.province, result.city].filter(Boolean);
+        const location = parts.join(' ') || '未知';
+        res.json({ success: true, ip, location });
+      } else {
         res.json({ success: false, ip, location: '未知' });
-      });
+      }
     } catch (error) {
       res.json({ success: false, ip, location: '未知' });
     }
