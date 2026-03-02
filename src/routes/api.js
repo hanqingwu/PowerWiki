@@ -662,7 +662,7 @@ function createApiRoutes(options) {
           try {
             const result = JSON.parse(data);
             if (result.success && result.country) {
-              const parts = [result.country, result.city].filter(Boolean);
+              const parts = [result.country, result.region, result.city].filter(Boolean);
               const location = parts.join(' ');
               console.log(`[IP查询] 成功: ${ip} -> ${location}`);
               res.json({ success: true, ip, location });
