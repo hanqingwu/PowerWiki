@@ -155,15 +155,16 @@ function renderPostsTree(tree) {
     });
   });
 
-  // 默认展开所有目录
+  // 只展开第一个文件夹的第一级
   const allDirs = postList.querySelectorAll('.nav-dir');
-  allDirs.forEach(dirElement => {
-    dirElement.classList.add('expanded');
-    const children = dirElement.querySelector('.nav-dir-children');
+  if (allDirs.length > 0) {
+    const firstDir = allDirs[0];
+    firstDir.classList.add('expanded');
+    const children = firstDir.querySelector('.nav-dir-children');
     if (children) {
       children.style.display = 'block';
     }
-  });
+  }
 
   // 如果当前有文章，高亮对应项
   if (currentPost) {
