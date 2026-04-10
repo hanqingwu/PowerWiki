@@ -106,6 +106,7 @@ function generateTOC() {
 
   if (headings.length === 0) {
     tocSidebar.style.display = 'none';
+    tocNav.innerHTML = '';
     return;
   }
 
