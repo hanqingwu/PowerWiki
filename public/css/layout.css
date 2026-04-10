@@ -317,7 +317,7 @@
 
 .view {
   display: none;
-  max-width: 820px;
+  max-width: 1220px;
   margin: 0 auto;
   padding: 40px 56px 64px;
   background-color: var(--bg-body);

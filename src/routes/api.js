@@ -267,6 +267,15 @@ function recordPostView(statsFilePath, filePath, req) {
   return stats.postViews[filePath];
 }
 
+function fixImages(html) {
+  console.info("add referrerpolicy")
+  return html
+    // 加 referrerpolicy
+    .replace(/<img /g, '<img referrerpolicy="no-referrer" ')
+    // 防止已有 crossorigin
+    .replace(/\s*crossorigin="[^"]*"/g, '');
+}
+
 /**
  * 创建 API 路由
  * @param {Object} options - 选项
@@ -345,7 +354,8 @@ function createApiRoutes(options) {
         const fileName = fileInfo.name.replace(/\.(md|markdown)$/i, '');
         const title = parsed.title || fileName;
 
-        const optimizedHtml = seoHelper.optimizeImageTags(parsed.html, title);
+        const htmlWithFixedImages = fixImages(parsed.html);
+        const optimizedHtml = seoHelper.optimizeImageTags(htmlWithFixedImages, title);
         const description = parsed.description || seoHelper.generateDescription(optimizedHtml, title);
         const keywords = parsed.keywords || seoHelper.extractKeywords(optimizedHtml, title, filePath);
 
@@ -353,7 +363,7 @@ function createApiRoutes(options) {
           ...parsed,
           type: 'markdown',
           title,
-          html: optimizedHtml,
+          html: fixImages(optimizedHtml),
           description,
           keywords,
           fileInfo,
@@ -661,7 +671,7 @@ function createApiRoutes(options) {
       const IP2Region = require('ip2region').default;
       const query = new IP2Region();
       const result = query.search(ip);
-      
+
       if (result && result.country) {
         const parts = [result.country, result.province, result.city].filter(Boolean);
         const location = parts.join(' ') || '未知';
