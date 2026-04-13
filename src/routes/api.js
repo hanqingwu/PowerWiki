@@ -268,7 +268,6 @@ function recordPostView(statsFilePath, filePath, req) {
 }
 
 function fixImages(html) {
-  console.info("add referrerpolicy")
   return html
     // 加 referrerpolicy
     .replace(/<img /g, '<img referrerpolicy="no-referrer" ')

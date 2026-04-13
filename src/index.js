@@ -164,7 +164,7 @@ app.get('/', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    
+
     res.send(html);
   } catch (error) {
     console.error('[i18n] 注入翻译失败:', error);
@@ -225,12 +225,12 @@ try {
 } catch (error) {
   // 配置文件不存在，尝试加载示例配置
   const exampleConfigPath = path.join(__dirname, '..', 'config.example.json');
-  
+
   try {
     config = require(exampleConfigPath);
     console.warn(`⚠️  ${t('tip.usingExampleConfig')}`);
     console.warn(`💡 ${t('tip.createCustomConfig')}`);
-    
+
     config.pages = config.pages || {};
     config.pages.home = config.pages.home || '';
     config.pages.about = config.pages.about || '';
@@ -469,6 +469,13 @@ Sitemap: ${baseUrl}/sitemap.xml
 `;
   res.setHeader('Content-Type', 'text/plain');
   res.send(robotsTxt);
+});
+
+//相对md跳转
+app.get(/^(\/[^\/]+\.md)$/, (req, res) => {
+    // req.path 获取当前路径，例如 /core-application.md
+    // 直接拼接到 /post 后面
+    res.redirect(302, `/post${req.path}`);
 });
 
 // 文章详情页 - 支持 SSR

@@ -4,7 +4,8 @@ FROM node:18-alpine
 WORKDIR /app
 
 # 安装 git（用于仓库同步）
-RUN apk add --no-cache git openssh
+USER root
+RUN apk add --no-cache git openssh-client
 
 # 复制 package 文件
 COPY package*.json ./
