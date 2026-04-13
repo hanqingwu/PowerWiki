@@ -14,7 +14,7 @@ services:
       - ./config.json:/app/config.json:ro
       - ./powerwiki_data:/app/data
       - ./powerwiki_cache:/app/cache
-      - /home/cooper/.ssh/id_rsa:/root/.ssh/id_rsa:ro 
+      - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro 
       - ./known_hosts:/root/.ssh/known_hosts
     restart: unless-stopped
     healthcheck:
