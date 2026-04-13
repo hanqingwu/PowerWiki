@@ -4,7 +4,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # 安装 git（用于仓库同步）
-RUN apk add --no-cache git
+RUN apk add --no-cache git openssh
 
 # 复制 package 文件
 COPY package*.json ./
@@ -23,6 +23,9 @@ ENV NODE_ENV=production
 ENV DATA_DIR=/app/data
 ENV GIT_CACHE_DIR=/app/cache
 ENV CONFIG_PATH=/app/config.json
+ENV TZ=Asia/Shanghai
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 暴露端口
 EXPOSE 3150
