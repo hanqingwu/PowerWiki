@@ -149,6 +149,10 @@ app.get('/', async (req, res) => {
     }
   }
 
+  //使用自定义home页
+  const homePagePath = config.pages.home || '/post/index.html';
+  res.redirect(302, homePagePath);
+  return;
   // 非爬虫：读取 index.html 并注入翻译
   try {
     let html = fs.readFileSync(indexHtmlPath, 'utf-8');
