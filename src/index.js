@@ -476,11 +476,13 @@ Sitemap: ${baseUrl}/sitemap.xml
 });
 
 //相对md跳转
+/*
 app.get(/^(\/[^\/]+\.md)$/, (req, res) => {
     // req.path 获取当前路径，例如 /core-application.md
     // 直接拼接到 /post 后面
     res.redirect(302, `/post${req.path}`);
 });
+*/
 
 // 文章详情页 - 支持 SSR
 app.get('/post/*', async (req, res) => {

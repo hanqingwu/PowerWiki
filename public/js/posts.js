@@ -156,6 +156,7 @@ function renderPostsTree(tree) {
   });
 
   // 只展开第一个文件夹的第一级
+  /*
   const allDirs = postList.querySelectorAll('.nav-dir');
   if (allDirs.length > 0) {
     const firstDir = allDirs[0];
@@ -165,6 +166,7 @@ function renderPostsTree(tree) {
       children.style.display = 'block';
     }
   }
+  */
 
   // 如果当前有文章，高亮对应项
   if (currentPost) {
