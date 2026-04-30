@@ -14,17 +14,16 @@ async function loadConfig() {
     // 检查缓存
     const cached = ClientCache.get('config');
     if (cached) {
-      const config = cached;
-      applyConfig(config);
-
-      // 如果配置了首页路径但没有首页内容，说明仓库可能还在初始化，稍后重试
-      if (config.pages && config.pages.home && !config.homeContent) {
-        checkAndReloadConfig();
+      // 缓存里没有 homeContent 但配置了 pages.home，说明是仓库初始化前缓存的旧数据，丢弃
+      if (cached.pages && cached.pages.home && !cached.homeContent) {
+        ClientCache.delete('config');
+      } else {
+        applyConfig(cached);
+        return;
       }
-      return;
     }
 
-    const response = await fetch('/api/config');
+    const response = await fetch(buildPath('/api/config'));
     const config = await response.json();
 
     // 缓存配置
@@ -32,7 +31,7 @@ async function loadConfig() {
 
     applyConfig(config);
 
-    // 如果配置了首页路径但没有首页内容，说明仓库可能还在初始化，稍后重试
+    // 仓库还在初始化中（有 pages.home 但没拿到内容），启动轮询等待
     if (config.pages && config.pages.home && !config.homeContent) {
       checkAndReloadConfig();
     }
@@ -53,15 +52,15 @@ function checkAndReloadConfig() {
   configCheckInterval = setInterval(async () => {
     checkCount++;
 
-    // 最多检查20次（约10秒）
-    if (checkCount > 20) {
+    // 最多检查10次（约20秒）
+    if (checkCount > 10) {
       clearInterval(configCheckInterval);
       configCheckInterval = null;
       return;
     }
 
     try {
-      const response = await fetch('/api/config');
+      const response = await fetch(buildPath('/api/config'));
       const config = await response.json();
 
       // 如果现在有首页内容了，说明仓库初始化完成，重新加载配置
@@ -77,7 +76,7 @@ function checkAndReloadConfig() {
     } catch (error) {
       // 忽略错误，继续检查
     }
-  }, 500); // 每500ms检查一次
+  }, 2000); // 每2秒检查一次，避免频繁请求
 }
 
 // 更新 SEO Meta 标签
@@ -230,7 +229,7 @@ async function loadPost(filePath) {
       return;
     }
 
-    const response = await fetch(`/api/post/${encodePath(filePath)}`);
+    const response = await fetch(buildPath(`/api/post/${encodePath(filePath)}`));
     if (!response.ok) {
       throw new Error('文章不存在');
     }
@@ -248,7 +247,7 @@ async function loadPost(filePath) {
     // 文章不存在时自动跳转到首页
     if (error.message === 'Article not found' || error.message === '文章不存在') {
       setTimeout(() => {
-        window.location.href = '/';
+        window.location.href = buildPath('/');
       }, 1000);
     }
   }
@@ -291,7 +290,7 @@ function renderPost(post) {
 
   if (fileType === 'pdf') {
     // PDF 文件：渲染成图片，无任何控件
-    const pdfUrl = `/api/pdf/${encodePath(filePath)}`;
+    const pdfUrl = buildPath(`/api/pdf/${encodePath(filePath)}`);
     postBody.innerHTML = `<div class="pdf-pages" id="pdfPages"></div>`;
 
     // 加载并渲染 PDF
@@ -419,7 +418,7 @@ function renderPost(post) {
   homeView.classList.remove('active');
 
   // 更新 SEO meta 标签（文章页）
-  const articleUrl = `${window.location.origin}/post/${encodePath(post.path)}`;
+  const articleUrl = `${window.location.origin}${buildPath(`/post/${encodePath(post.path)}`)}`;
   const articleTitle = `${post.title} - ${siteConfig?.siteTitle || 'PowerWiki'}`;
   const articleDescription = post.description || post.title || 'PowerWiki 文章';
 
@@ -483,7 +482,7 @@ function renderPost(post) {
 // 后台更新文章（用于更新访问量等可能变化的数据）
 async function updatePostInBackground(filePath) {
   try {
-    const response = await fetch(`/api/post/${encodePath(filePath)}`);
+    const response = await fetch(buildPath(`/api/post/${encodePath(filePath)}`));
     if (response.ok) {
       const post = await response.json();
 

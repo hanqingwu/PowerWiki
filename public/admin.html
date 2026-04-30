@@ -611,6 +611,7 @@
         
         // 国际化支持 - 由服务器端设置
         const LANG = 'zh-CN'; // 将被服务器替换
+        const BASE_URL_SERVER = ''; // 将被服务器替换
         
         const i18n = {
             'zh-CN': {
@@ -765,7 +766,7 @@
         async function loadAdminData() {
             try {
                 // 添加时间戳防止缓存
-                const response = await fetch('/api/stats/detail?t=' + Date.now(), {
+                const response = await fetch(BASE_URL_SERVER + '/api/stats/detail?t=' + Date.now(), {
                     cache: 'no-store'
                 });
                 if (!response.ok) {
@@ -1317,7 +1318,7 @@
         async function loadConfig() {
             try {
                 // 添加时间戳防止缓存
-                const response = await fetch('/api/config?t=' + Date.now(), {
+                const response = await fetch(BASE_URL_SERVER + '/api/config?t=' + Date.now(), {
                     cache: 'no-store'
                 });
                 const config = await response.json();

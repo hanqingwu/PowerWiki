@@ -31,7 +31,7 @@ function goToHome() {
     homeView.classList.add('active');
     postView.classList.remove('active');
     currentPost = null;
-    window.history.pushState({}, '', '/');
+    window.history.pushState({}, '', buildPath('/'));
 
     // 更新 SEO meta 标签（首页）
     if (siteConfig) {
@@ -78,8 +78,10 @@ function goToHome() {
 // 设置路由
 function setupRouting() {
   const path = window.location.pathname;
-  if (path.startsWith('/post/')) {
-    const encodedPath = path.replace('/post/', '');
+  // 去掉 BASE_URL 前缀后再匹配
+  const localPath = BASE_URL ? path.replace(new RegExp('^' + BASE_URL), '') : path;
+  if (localPath.startsWith('/post/')) {
+    const encodedPath = localPath.replace('/post/', '');
     // 解码 URL 编码的路径
     try {
       const postPath = decodeURIComponent(encodedPath);
@@ -120,6 +122,39 @@ function setupEventListeners() {
     if (headerTitle) {
       e.preventDefault();
       goToHome();
+    }
+  });
+
+  // Header 导航链接拦截（关于等），用 SPA 方式加载，避免整页跳转
+  document.addEventListener('click', (e) => {
+    const navLink = e.target.closest('.nav-link');
+    if (!navLink) return;
+
+    const href = navLink.getAttribute('href');
+    if (!href) return;
+
+    // 首页链接
+    const homePath = buildPath('/');
+    if (href === homePath || href === '/') {
+      e.preventDefault();
+      goToHome();
+      return;
+    }
+
+    // /post/* 链接，用 SPA 加载
+    const postPrefix = buildPath('/post/');
+    const plainPostPrefix = '/post/';
+    let filePath = null;
+    if (href.startsWith(postPrefix)) {
+      filePath = decodeURIComponent(href.slice(postPrefix.length));
+    } else if (href.startsWith(plainPostPrefix)) {
+      filePath = decodeURIComponent(href.slice(plainPostPrefix.length));
+    }
+
+    if (filePath) {
+      e.preventDefault();
+      loadPost(filePath);
+      window.history.pushState({ path: filePath }, '', buildPath(`/post/${encodePath(filePath)}`));
     }
   });
 
@@ -210,7 +245,6 @@ function setupEventListeners() {
   }
 }
 
-// 处理浏览器前进后退
 window.addEventListener('popstate', (e) => {
   if (e.state && e.state.path) {
     loadPost(e.state.path);

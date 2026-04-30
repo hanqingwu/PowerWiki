@@ -1,3 +1,12 @@
+// BASE_URL：从服务器注入，默认为空字符串
+const BASE_URL = (window.__BASE_URL__ || '').replace(/\/+$/, '');
+
+// 构建带 BASE_URL 前缀的路径
+function buildPath(path) {
+  if (!path.startsWith('/')) path = '/' + path;
+  return BASE_URL + path;
+}
+
 // 显示通知
 function showNotification(message, type = 'info') {
   // 创建通知元素

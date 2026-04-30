@@ -27,7 +27,7 @@ async function loadPosts() {
       <div class="loading-dots"><span></span><span></span><span></span></div>
       <span style="margin-left: 8px;">${i18n.t('client.loading')}</span>
     </li>`;
-    const response = await fetch('/api/posts');
+    const response = await fetch(buildPath('/api/posts'));
     const data = await response.json();
     postsTree = data.tree || {};
     postsFlat = data.flat || [];
@@ -45,7 +45,7 @@ async function loadPosts() {
 // 后台更新文章列表（不阻塞UI）
 async function updatePostsInBackground() {
   try {
-    const response = await fetch('/api/posts');
+    const response = await fetch(buildPath('/api/posts'));
     const data = await response.json();
 
     // 检查数据是否有变化
@@ -101,7 +101,7 @@ function renderPostsTree(tree) {
       if (path) {
         loadPost(path);
         // 更新 URL
-        window.history.pushState({ path }, '', `/post/${encodePath(path)}`);
+        window.history.pushState({ path }, '', buildPath(`/post/${encodePath(path)}`));
         // 更新活动状态（清除所有文件和文件夹的选中状态）
         postList.querySelectorAll('.nav-item-file').forEach(i => i.classList.remove('active'));
         postList.querySelectorAll('.nav-dir').forEach(d => d.classList.remove('active'));
@@ -129,7 +129,7 @@ function renderPostsTree(tree) {
       // 如果有 README，且不是当前已加载的文章，才加载
       if (readmePath && (!currentPost || currentPost.path !== readmePath)) {
         loadPost(readmePath);
-        window.history.pushState({ path: readmePath }, '', `/post/${encodePath(readmePath)}`);
+        window.history.pushState({ path: readmePath }, '', buildPath(`/post/${encodePath(readmePath)}`));
 
         // 高亮当前目录
         postList.querySelectorAll('.nav-item-file').forEach(i => i.classList.remove('active'));

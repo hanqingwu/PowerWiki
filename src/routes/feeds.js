@@ -18,6 +18,7 @@ const { t } = require('../config/i18n');
 function createApiFeedRoutes(options) {
   const router = express.Router();
   const { config, gitManager } = options;
+  const apiPrefix = (options.baseUrl || '') + '/api/image';
 
   // RSS Feed
   router.get('/rss.xml', async (req, res) => {
@@ -50,7 +51,7 @@ function createApiFeedRoutes(options) {
       for (const file of recentFiles) {
         try {
           const content = await gitManager.readMarkdownFile(file.path);
-          const parsed = parseMarkdown(content, file.path);
+          const parsed = parseMarkdown(content, file.path, apiPrefix);
           const fileInfo = await gitManager.getFileInfo(file.path);
           const fileName = fileInfo.name.replace(/\.(md|markdown)$/i, '');
           const title = fileName || parsed.title || '文章';
@@ -141,7 +142,7 @@ function createApiFeedRoutes(options) {
 
           try {
             const content = await gitManager.readMarkdownFile(file.path);
-            const parsed = parseMarkdown(content, file.path);
+            const parsed = parseMarkdown(content, file.path, apiPrefix);
             if (parsed.html) {
               const images = seoHelper.extractImages(parsed.html, baseUrl);
               images.slice(0, 3).forEach(imgUrl => {

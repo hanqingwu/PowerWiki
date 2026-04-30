@@ -106,7 +106,7 @@ function extractDescription(markdown) {
   return '';
 }
 
-function transformLocalImagePaths(markdown, filePath) {
+function transformLocalImagePaths(markdown, filePath, apiPrefix = '/api/image') {
   const lastSlashIndex = filePath.lastIndexOf('/');
   const mdDir = lastSlashIndex !== -1 ? filePath.substring(0, lastSlashIndex) : '';
 
@@ -151,17 +151,17 @@ function transformLocalImagePaths(markdown, filePath) {
       resolvedPath = `${mdDir}/${cleanImagePath}`;
     }
 
-    const apiPath = `/api/image/${resolvedPath}`;
+    const apiPath = `${apiPrefix}/${resolvedPath}`;
     return `![${alt}](${apiPath})`;
   });
 }
 
-function parseMarkdown(markdown, filePath = '') {
+function parseMarkdown(markdown, filePath = '', apiPrefix = '/api/image') {
   const { frontmatter, content } = parseFrontmatter(markdown);
 
   let processedContent = content;
   if (filePath) {
-    processedContent = transformLocalImagePaths(content, filePath);
+    processedContent = transformLocalImagePaths(content, filePath, apiPrefix);
   }
 
   let html;

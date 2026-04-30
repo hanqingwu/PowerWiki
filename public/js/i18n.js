@@ -12,7 +12,8 @@ const i18n = {
 
     // 否则从 API 获取翻译（其他页面）
     try {
-      const response = await fetch('/api/i18n');
+      const baseUrl = (window.__BASE_URL__ || '').replace(/\/+$/, '');
+      const response = await fetch(baseUrl + '/api/i18n');
       this.translations = await response.json();
     } catch (error) {
       console.error('Failed to load translations:', error);

@@ -287,6 +287,8 @@ function fixImages(html) {
 function createApiRoutes(options) {
   const router = express.Router();
   const { config, gitManager, statsFilePath, readTemplate, renderTemplate } = options;
+  const apiPrefix = (options.baseUrl || '') + '/api/image';
+  const baseUrl = options.baseUrl || '';
 
   // API: 获取所有文章列表
   router.get('/posts', async (req, res) => {
@@ -347,7 +349,7 @@ function createApiRoutes(options) {
         res.json(result);
       } else {
         const content = await gitManager.readMarkdownFile(filePath);
-        const parsed = parseMarkdown(content, filePath);
+        const parsed = parseMarkdown(content, filePath, apiPrefix);
         const fileInfo = await gitManager.getFileInfo(filePath);
 
         const fileName = fileInfo.name.replace(/\.(md|markdown)$/i, '');
@@ -392,14 +394,14 @@ function createApiRoutes(options) {
     const homeTemplate = readTemplate('home');
     const stats = readStats(statsFilePath);
 
-    const homePagePath = config.pages.home || '';
-    const aboutPagePath = config.pages.about || '';
+    const homePagePath = (config.pages.home || '').replace(/^\/+/, '').replace(/^post\//, '');
+    const aboutPagePath = (config.pages.about || '').replace(/^\/+/, '').replace(/^post\//, '');
 
     let homeContent = null;
     if (homePagePath) {
       try {
         const content = await gitManager.readMarkdownFile(homePagePath);
-        const parsed = parseMarkdown(content, homePagePath);
+        const parsed = parseMarkdown(content, homePagePath, apiPrefix);
         homeContent = {
           html: parsed.html,
           title: parsed.title || '首页',
@@ -410,17 +412,18 @@ function createApiRoutes(options) {
       }
     }
 
-    let aboutPath = '/post/README.md';
+    let aboutPath = `${baseUrl}/post/README.md`;
     if (aboutPagePath) {
-      aboutPath = `/post/${encodeURIComponent(aboutPagePath)}`;
+      aboutPath = `${baseUrl}/post/${encodeURIComponent(aboutPagePath)}`;
     } else if (homePagePath && !aboutPagePath) {
-      aboutPath = `/post/${encodeURIComponent(homePagePath)}`;
+      aboutPath = `${baseUrl}/post/${encodeURIComponent(homePagePath)}`;
     }
 
     const headerData = {
       siteTitle: config.siteTitle || config.title,
       siteDescription: config.siteDescription || config.description,
-      aboutPath
+      aboutPath,
+      homePath: baseUrl + '/'
     };
 
     const footerData = {

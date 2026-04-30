@@ -13,7 +13,7 @@ async function updateFooterStats(forceRefresh = false) {
     }
 
     // 添加时间戳防止浏览器缓存
-    const response = await fetch('/api/stats?t=' + Date.now(), {
+    const response = await fetch(buildPath('/api/stats') + '?t=' + Date.now(), {
       cache: 'no-store'
     });
     const stats = await response.json();
@@ -44,7 +44,7 @@ function updateStatsUI(stats) {
 async function updateStatsInBackground() {
   try {
     // 添加时间戳防止浏览器缓存
-    const response = await fetch('/api/stats?t=' + Date.now(), {
+    const response = await fetch(buildPath('/api/stats') + '?t=' + Date.now(), {
       cache: 'no-store'
     });
     const stats = await response.json();

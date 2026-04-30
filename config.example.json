@@ -3,6 +3,7 @@
   "repoBranch": "master",
   "mdPath": "",
   "port": 3150,
+  "baseUrl": "",
   "title": "PowerWiki",
   "description": "Blog",
   "siteTitle": "PowerWiki",
